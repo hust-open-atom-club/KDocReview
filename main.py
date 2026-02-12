@@ -5,6 +5,7 @@ from datetime import datetime
 API_URL = "http://127.0.0.1:8000/"
 
 count_need_review = 0
+count_total = 0
 reviewed = []
 
 def format_datetime(iso_str: str) -> str:
@@ -14,6 +15,23 @@ def format_datetime(iso_str: str) -> str:
     except Exception:
         return iso_str
 
+async def rewind(number):
+    try:
+        with open("data/rewind.txt","w") as f:
+            f.write(number)
+        async with aiohttp.ClientSession() as session:
+            async with session.post(API_URL+"reset", timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                resp.raise_for_status()
+                data = await resp.json()
+            async with session.post(API_URL+"rewind?n="+str(number), timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                resp.raise_for_status()
+                data = await resp.json()
+                print("[INFO] Rewind "+str(number))
+                return data.get("data", {}).get("entries", [])
+    except Exception as e:
+        print(f"[ERROR] Rewind failed: {e}")
+        return []
+    
 async def fetch_patches():
     try:
         async with aiohttp.ClientSession() as session:
@@ -35,7 +53,8 @@ def main(page: ft.Page):
 
     async def refresh_patches():
         entries = await fetch_patches()
-        count_total = len(entries)
+        global count_total
+        count_total += len(entries)
         global count_need_review
         for entry in entries:
             subject = entry.get("subject", "无主题")
@@ -87,7 +106,14 @@ def main(page: ft.Page):
         status_text.color = ft.Colors.BLACK
         page.update()
 
-    def handle_refresh_click(e):
+    try:
+        with open("data/rewind.txt","r") as f:
+            rewind_num = f.read()
+    except FileNotFoundError:
+        rewind_num = 500
+    
+    def handle_refresh_click(e: ft.Event[ft.Button]):
+        rewind(rewind_button.value)
         page.run_task(refresh_patches)
 
     page.add(
@@ -96,10 +122,12 @@ def main(page: ft.Page):
             bgcolor=ft.Colors.WHITE,
         ),
         ft.Button("刷新", icon="refresh", on_click=handle_refresh_click),
+        rewind_button := ft.TextField(label="邮件数量", value=rewind_num),
         status_text,
         patch_list,
     )
 
+    rewind(rewind_num)
     page.run_task(refresh_patches)
 
 if __name__ == "__main__":
