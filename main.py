@@ -1,5 +1,7 @@
 import flet as ft
 import aiohttp
+import asyncio
+import requests
 from datetime import datetime
 
 API_URL = "http://127.0.0.1:8000/"
@@ -15,30 +17,30 @@ def format_datetime(iso_str: str) -> str:
     except Exception:
         return iso_str
 
-async def rewind(number):
+def rewind(number: int):
     try:
         with open("data/rewind.txt","w") as f:
-            f.write(number)
-        async with aiohttp.ClientSession() as session:
-            async with session.post(API_URL+"reset", timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            f.write(str(number))
+            with requests.post(API_URL+"reset", timeout=10) as resp:
                 resp.raise_for_status()
-                data = await resp.json()
-            async with session.post(API_URL+"rewind?n="+str(number), timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            with requests.post(API_URL+"rewind?n="+str(number), timeout=10) as resp:
                 resp.raise_for_status()
-                data = await resp.json()
                 print("[INFO] Rewind "+str(number))
-                return data.get("data", {}).get("entries", [])
+                
     except Exception as e:
         print(f"[ERROR] Rewind failed: {e}")
-        return []
     
 async def fetch_patches():
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(API_URL+"latest") as resp:
-                resp.raise_for_status()
-                data = await resp.json()
-                return data.get("data", {}).get("entries", [])
+        while 1:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(API_URL+"latest") as resp:
+                    resp.raise_for_status()
+                    data = await resp.json()
+                    print(data.get("data", {}).get("entries", []))
+                    print(data)
+                    if data.get("data", {}).get("entries", []) != []:
+                        return data.get("data", {}).get("entries", [])
     except Exception as e:
         print(f"[ERROR] Get email list failed: {e}")
         return []
@@ -105,16 +107,18 @@ def main(page: ft.Page):
         status_text.value = f"共 {count_total} 封邮件，其中 {count_need_review} 封需要审核"
         status_text.color = ft.Colors.BLACK
         page.update()
-
-    try:
-        with open("data/rewind.txt","r") as f:
-            rewind_num = f.read()
-    except FileNotFoundError:
-        rewind_num = 500
     
     def handle_refresh_click(e: ft.Event[ft.Button]):
         rewind(rewind_button.value)
         page.run_task(refresh_patches)
+
+    try:
+        with open("data/rewind.txt","r") as f:
+            rewind_num = f.read()
+            if rewind_num == "":
+                rewind_num = 500
+    except FileNotFoundError:
+        rewind_num = 500
 
     page.add(
         ft.AppBar(
