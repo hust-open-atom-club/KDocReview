@@ -3,10 +3,15 @@ import aiohttp
 from loguru import logger
 import requests
 from datetime import datetime
+import rtoml
+
 
 logger.add("logs/latest.log", level="DEBUG")
 
-API_URL = "http://127.0.0.1:8000/"
+with open("data/config.toml", "r") as f:
+    config = rtoml.loads(f.read())
+
+API_URL = config["common"]["api"]
 
 count_need_review = 0
 count_total = 0
