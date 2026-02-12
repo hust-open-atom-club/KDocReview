@@ -1,8 +1,10 @@
 import flet as ft
 import aiohttp
-import asyncio
+from loguru import logger
 import requests
 from datetime import datetime
+
+logger.add("logs/latest.log", level="DEBUG")
 
 API_URL = "http://127.0.0.1:8000/"
 
@@ -25,10 +27,10 @@ def rewind(number: int):
                 resp.raise_for_status()
             with requests.post(API_URL+"rewind?n="+str(number), timeout=10) as resp:
                 resp.raise_for_status()
-                print("[INFO] Rewind "+str(number))
+                logger.info("Rewind "+str(number))
                 
     except Exception as e:
-        print(f"[ERROR] Rewind failed: {e}")
+        logger.error(f"Rewind failed: {e}")
     
 async def fetch_patches():
     try:
@@ -37,12 +39,12 @@ async def fetch_patches():
                 async with session.get(API_URL+"latest") as resp:
                     resp.raise_for_status()
                     data = await resp.json()
-                    print(data.get("data", {}).get("entries", []))
-                    print(data)
+                    logger.trace(data.get("data", {}).get("entries", []))
+                    logger.trace(data)
                     if data.get("data", {}).get("entries", []) != []:
                         return data.get("data", {}).get("entries", [])
     except Exception as e:
-        print(f"[ERROR] Get email list failed: {e}")
+        logger.error(f"Get email list failed: {e}")
         return []
 
 def main(page: ft.Page):
@@ -130,9 +132,6 @@ def main(page: ft.Page):
         status_text,
         patch_list,
     )
-
-    rewind(rewind_num)
-    page.run_task(refresh_patches)
 
 if __name__ == "__main__":
     ft.run(main)
