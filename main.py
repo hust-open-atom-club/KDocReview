@@ -100,8 +100,7 @@ def main(page: ft.Page):
                             badge,
                         ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
                         ft.Text(f"{author} <{email}>", size=13, color=ft.Colors.GREY_700),
-                        ft.Text(f"subsystem: {subsystem} | {format_datetime(received_at)}", size=12, color=ft.Colors.GREY_600),
-                        ft.Text(summary, size=13, color=ft.Colors.BLACK),
+                        ft.Text(f"subsystem: {subsystem} | {format_datetime(received_at)}", size=12, color=ft.Colors.GREY_600)
                     ], spacing=4),
                     padding=12,
                     bgcolor=bg_color,
@@ -132,8 +131,10 @@ def main(page: ft.Page):
             title=ft.Text("KDocReview"),
             bgcolor=ft.Colors.WHITE,
         ),
-        ft.Button("刷新", icon="refresh", on_click=handle_refresh_click),
-        rewind_button := ft.TextField(label="邮件数量", value=rewind_num),
+        ft.Row([
+            rewind_button := ft.TextField(label="邮件数量", value=rewind_num, width=200),
+            ft.ElevatedButton("刷新", icon=ft.Icons.REFRESH, on_click=handle_refresh_click),
+        ], alignment=ft.MainAxisAlignment.START, spacing=10),
         status_text,
         patch_list,
     )
