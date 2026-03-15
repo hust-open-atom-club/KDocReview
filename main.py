@@ -133,7 +133,7 @@ def main(page: ft.Page):
         ),
         ft.Row([
             rewind_button := ft.TextField(label="邮件数量", value=rewind_num, width=200),
-            ft.ElevatedButton("刷新", icon=ft.Icons.REFRESH, on_click=handle_refresh_click),
+            ft.Button("刷新", icon="refresh", on_click=handle_refresh_click),
         ], alignment=ft.MainAxisAlignment.START, spacing=10),
         status_text,
         patch_list,
