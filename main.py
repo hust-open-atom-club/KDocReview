@@ -147,7 +147,7 @@ def main(page: ft.Page):
                             ft.Column([
                                 ft.Text(subject, weight=ft.FontWeight.BOLD, size=14, 
                                        spans=[ft.TextSpan(
-                                           subject[:30] + "..." if len(subject) > 30 else subject,
+                                           subject,
                                            style=ft.TextStyle(decoration=ft.TextDecoration.NONE)
                                        )])
                             ], expand=True),
@@ -158,7 +158,9 @@ def main(page: ft.Page):
                             ft.Icon(ft.Icons.PERSON, size=16, color=ft.Colors.GREY_600),
                             ft.Text(f"{author}", size=12, color=ft.Colors.GREY_600),
                             ft.Icon(ft.Icons.EMAIL, size=16, color=ft.Colors.GREY_600),
-                            ft.Text(f"{email.split('@')[0][:15]}...", size=12, color=ft.Colors.GREY_600),
+                            ft.Text(f"{email}", size=12, color=ft.Colors.GREY_600),
+                            ft.Icon(ft.Icons.INFO, size=16, color=ft.Colors.GREY_600),
+                            ft.Text(f"{subsystem}", size=12, color=ft.Colors.GREY_600),
                         ], spacing=8),
                         ft.Row([
                             ft.Icon(ft.Icons.ACCESS_TIME, size=14, color=ft.Colors.GREY_500),
@@ -304,4 +306,4 @@ def main(page: ft.Page):
     )
 
 if __name__ == "__main__":
-    ft.app(target=main)
+    ft.run(main)
