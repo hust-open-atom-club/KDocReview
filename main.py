@@ -125,7 +125,7 @@ def main(page: ft.Page):
                     ], spacing=4, vertical_alignment=ft.CrossAxisAlignment.CENTER),
                     bgcolor=ft.Colors.RED,
                     border_radius=16,
-                    padding=ft.padding.symmetric(horizontal=8, vertical=4),
+                    padding=ft.Padding.symmetric(horizontal=8, vertical=4),
                 )
                 new_entries_count += 1
             else:
@@ -137,7 +137,7 @@ def main(page: ft.Page):
                     ], spacing=4, vertical_alignment=ft.CrossAxisAlignment.CENTER),
                     bgcolor=ft.Colors.GREEN,
                     border_radius=16,
-                    padding=ft.padding.symmetric(horizontal=8, vertical=4),
+                    padding=ft.Padding.symmetric(horizontal=8, vertical=4),
                 )
 
             card = ft.Card(
@@ -244,6 +244,9 @@ def main(page: ft.Page):
     except FileNotFoundError:
         rewind_num = 500
 
+    def next_page(e: ft.Event[ft.Button]):
+        page.run_task(refresh_patches)
+    
     # 控制面板
     control_panel = ft.Card(
         content=ft.Container(
@@ -280,7 +283,7 @@ def main(page: ft.Page):
                            size=12, color=ft.Colors.GREY_600, expand=True),
                     ft.FilledButton(
                         "下一页",
-                        on_click=page.run_task(refresh_patches),
+                        on_click=next_page,
                         style=ft.ButtonStyle(
                             bgcolor=ft.Colors.BLUE,
                             color=ft.Colors.WHITE
