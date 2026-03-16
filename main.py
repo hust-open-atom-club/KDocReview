@@ -262,7 +262,6 @@ def main(page: ft.Page):
                     ),
                     ft.FilledButton(
                         "刷新列表",
-                        icon="refresh",
                         on_click=handle_refresh_click,
                         style=ft.ButtonStyle(
                             bgcolor=ft.Colors.BLUE,
@@ -278,7 +277,15 @@ def main(page: ft.Page):
                         )
                     ),
                     ft.Text("提示：调整数字后点击刷新来重新获取指定数量的邮件", 
-                           size=12, color=ft.Colors.GREY_600, expand=True)
+                           size=12, color=ft.Colors.GREY_600, expand=True),
+                    ft.FilledButton(
+                        "下一页",
+                        on_click=page.run_task(refresh_patches),
+                        style=ft.ButtonStyle(
+                            bgcolor=ft.Colors.BLUE,
+                            color=ft.Colors.WHITE
+                        )
+                    ),
                 ], alignment=ft.MainAxisAlignment.START, spacing=10),
             ], spacing=10),
             padding=15,
