@@ -9,7 +9,7 @@ import rtoml
 logger.add("logs/latest.log", level="DEBUG")
 
 with open("data/config.toml", "r") as f:
-    config = rtoml.loads(f.read())
+    config : dict = rtoml.loads(f.read())
 
 API_URL = config["common"]["api"]
 
@@ -43,11 +43,11 @@ async def fetch_patches():
             async with aiohttp.ClientSession() as session:
                 async with session.get(API_URL+"latest") as resp:
                     resp.raise_for_status()
-                    data = await resp.json()
+                    data : dict = await resp.json()
                     logger.trace(data.get("data", {}).get("entries", []))
                     logger.trace(data)
-                    if data.get("data", {}).get("entries", []) != []:
-                        return data.get("data", {}).get("entries", [])
+                    if data.get("is_caught_up"):
+                        break
     except Exception as e:
         logger.error(f"Get email list failed: {e}")
         return []
