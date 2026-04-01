@@ -1,2 +1,3 @@
 data/rewind.txt
-logs/latest.log
+logs/
+__pycache__/
