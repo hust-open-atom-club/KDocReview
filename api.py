@@ -1,5 +1,4 @@
 import aiohttp
-import requests
 from loguru import logger
 from datetime import datetime
 
@@ -13,16 +12,16 @@ def format_datetime(iso_str: str) -> str:
     except Exception:
         return iso_str
 
-def rewind(number: int):
+async def rewind(number: int):
     try:
-        with open("data/rewind.txt","w") as f:
+        with open("data/rewind.txt", "w") as f:
             f.write(str(number))
-            with requests.post(API_URL+"reset", timeout=10) as resp:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(API_URL + "reset") as resp:
                 resp.raise_for_status()
-            with requests.post(API_URL+"rewind?n="+str(number), timeout=10) as resp:
+            async with session.post(API_URL + "rewind", params={"n": number}) as resp:
                 resp.raise_for_status()
-                logger.info("Rewind "+str(number))
-                
+                logger.info("Rewind " + str(number))
     except Exception as e:
         logger.error(f"Rewind failed: {e}")
 

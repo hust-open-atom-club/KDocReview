@@ -12,7 +12,10 @@ def main(page: ft.Page):
     page.window_width = 1200
     page.window_height = 800
 
-    # 顶部统计卡片
+    total_count_text = ft.Text("0", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE)
+    need_review_count_text = ft.Text("0", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.RED)
+    reviewed_count_text = ft.Text("0", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.GREEN)
+
     stats_card = ft.Card(
         content=ft.Container(
             content=ft.Column([
@@ -24,17 +27,17 @@ def main(page: ft.Page):
                 ft.Row([
                     ft.Column([
                         ft.Text("总邮件数", size=12, color=ft.Colors.GREY_600),
-                        ft.Text("0", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE, data="total_count")
+                        total_count_text
                     ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                     ft.VerticalDivider(width=30),
                     ft.Column([
                         ft.Text("待审核", size=12, color=ft.Colors.GREY_600),
-                        ft.Text("0", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.RED, data="need_review_count")
+                        need_review_count_text
                     ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                     ft.VerticalDivider(width=30),
                     ft.Column([
                         ft.Text("已审核", size=12, color=ft.Colors.GREY_600),
-                        ft.Text("0", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.GREEN, data="reviewed_count")
+                        reviewed_count_text
                     ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                 ], alignment=ft.MainAxisAlignment.SPACE_AROUND)
             ], spacing=8),
@@ -140,9 +143,9 @@ def main(page: ft.Page):
 
         # 更新统计数据
         reviewed_count = state.count_total - state.count_need_review
-        stats_card.content.content.controls[2].controls[0].controls[1].value = str(state.count_total)
-        stats_card.content.content.controls[2].controls[2].controls[1].value = str(state.count_need_review)
-        stats_card.content.content.controls[2].controls[4].controls[1].value = str(reviewed_count)
+        total_count_text.value = str(state.count_total)
+        need_review_count_text.value = str(state.count_need_review)
+        reviewed_count_text.value = str(reviewed_count)
         
         status_text.value = f"共 {state.count_total} 封邮件，其中 {state.count_need_review} 封需要审核，新增 {new_entries_count} 封"
         status_text.color = ft.Colors.GREEN if new_entries_count > 0 else ft.Colors.GREY_600
@@ -156,17 +159,17 @@ def main(page: ft.Page):
             
             # 更新统计
             reviewed_count = state.count_total - state.count_need_review
-            stats_card.content.content.controls[2].controls[0].controls[1].value = str(state.count_total)
-            stats_card.content.content.controls[2].controls[2].controls[1].value = str(state.count_need_review)
-            stats_card.content.content.controls[2].controls[4].controls[1].value = str(reviewed_count)
+            total_count_text.value = str(state.count_total)
+            need_review_count_text.value = str(state.count_need_review)
+            reviewed_count_text.value = str(reviewed_count)
             
             status_text.value = f"已标记邮件为已审核 - 剩余 {state.count_need_review} 封待审核"
             status_text.color = ft.Colors.BLUE
             page.update()
 
-    def handle_refresh_click(e: ft.Event[ft.Button]):
+    async def handle_refresh_click(e: ft.Event[ft.Button]):
         number = int(rewind_button.value) if rewind_button.value.isdigit() else 500
-        rewind(number)
+        await rewind(number)
         page.run_task(refresh_patches)
 
     def handle_clear_all(e):
@@ -176,9 +179,9 @@ def main(page: ft.Page):
         state.count_need_review = 0
         state.reviewed.clear()
         
-        stats_card.content.content.controls[2].controls[0].controls[1].value = "0"
-        stats_card.content.content.controls[2].controls[2].controls[1].value = "0"
-        stats_card.content.content.controls[2].controls[4].controls[1].value = "0"
+        total_count_text.value = "0"
+        need_review_count_text.value = "0"
+        reviewed_count_text.value = "0"
         
         status_text.value = "已清空所有邮件列表"
         status_text.color = ft.Colors.GREY_500
